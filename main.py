@@ -3,14 +3,15 @@ from instagramUserInfo import User
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from time import sleep
+from userinput import getUserInput
 
 
 class Instagram:
-    def __init__(self, username, email, password):
+    def __init__(self, username_or_email, password):
         self.browser = webdriver.Firefox()
         self.base_url = "https://www.instagram.com/"
         self.login_page = "accounts/login/"
-        self.user = User(username, email, password)
+        self.user = User(username_or_email, password)
 
     def signIn(self):
         self.browser.get(self.base_url+self.login_page)
@@ -20,7 +21,7 @@ class Instagram:
         passwordInput = self.browser.find_element(
             By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/section/main/div/div/div[1]/div[2]/form/div/div[2]/div/label/input")
 
-        emailInput.send_keys(self.user.username)
+        emailInput.send_keys(self.user.username_or_password)
         passwordInput.send_keys(self.user.password)
         passwordInput.send_keys(Keys.ENTER)
         sleep(3)
@@ -32,18 +33,15 @@ class Instagram:
             By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/header/section/ul/li[2]/a")
         followersButton.click()
         sleep(2)
-        dialog = self.browser.find_element(
-            By.XPATH, "/html/body/div[2]/div/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[2]/div[1]/div")
         followersList = self.browser.find_elements(
             By.CSS_SELECTOR, "._aano > div:nth-child(1) > div:nth-child(1) > *")
 
-        action = webdriver.ActionChains(self.browser)
         follower_count = len(followersList)
-        print(follower_count)
-        fbody = self.browser.find_element(By.XPATH, "//html/body/div[2]/div/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[2]")
-        fbody.click()
+        fbody = self.browser.find_element(
+            By.XPATH, "//html/body/div[2]/div/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[2]")
         while True:
-            self.browser.execute_script("arguments[0].scroll(0, arguments[0].scrollHeight);", fbody)
+            self.browser.execute_script(
+                "arguments[0].scroll(0, arguments[0].scrollHeight);", fbody)
 
             sleep(5)
             followersList = self.browser.find_elements(
@@ -63,12 +61,20 @@ class Instagram:
                 "profile_link": link
             }
             followers.append(data)
-            print(data)
         return followers
 
 
-instagram = Instagram(
-    "burcuy3403", "burcuyilmazer34@yopmail.com", "YG2%$',$5)PM2d~")
+args = getUserInput()
+
+if args.username:
+    username_or_email = args.username
+elif args.email:
+    username_or_email = args.email
+
+instagram = Instagram(username_or_email=username_or_email,password=args.password)
 instagram.signIn()
-followers = instagram.getFollowers("burcuy3403")
-print(followers)
+followers = instagram.getFollowers(args.target)
+
+
+for i in followers:
+    print(i["username"])
