@@ -7,7 +7,7 @@ from userinput import getUserInput
 from colors import bcolors as colors
 import os
 import threading
-
+import datetime
 
 class Instagram:
     def __init__(self, signin_method: str, password: str, wait: int = 2):
@@ -119,6 +119,11 @@ class Instagram:
 
 
 args = getUserInput()
+
+def scaping_info(username:str,target:str,datetime:datetime):
+    print(username+"   ---scraping--->   " + target, datetime)
+
+scaping_info(args.username,args.target,datetime.datetime.now())
 
 def sign_in_method(args):
     if args.username:
