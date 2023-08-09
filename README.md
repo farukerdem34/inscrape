@@ -34,5 +34,7 @@
 **It is recommended that you do not use it with your main account to avoid any problems with your Instagram account.**
 
 ![image](https://github.com/farukerdem34/inscrape/blob/master/imgs/1.png)
+
 ![image](https://github.com/farukerdem34/inscrape/blob/master/imgs/2.png)
+
 ![image](https://github.com/farukerdem34/inscrape/blob/master/imgs/3.png)
