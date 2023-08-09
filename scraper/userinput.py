@@ -12,8 +12,16 @@ def getUserInput():
         parser.add_argument("-t","--target",dest="target",help="Target account name.",type=str,required=True)
 
         parser.add_argument("-v","--verbose",dest="verbose",action="store_true",help="Verbosity")
+
+        # Output Arguments
         output_group = parser.add_mutually_exclusive_group(required=False)
         output_group.add_argument("-o",dest="output",action="store_true")
         output_group.add_argument("--output",dest="output",type=str)
+
+        # Scraping Targets
+        parser.add_argument("--followers",action="store_true")
+        parser.add_argument("--followings",action="store_true")
+        
+
         args = parser.parse_args()
         return args
