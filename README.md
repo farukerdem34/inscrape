@@ -6,18 +6,22 @@
 
 `Selenium`-based `python` application that scrapes Instagram profile.
 
-![image](https://github.com/farukerdem34/inscrape/blob/master/imgs/screenshot-1.png)
-
 - # Usage
   - ## Flags
     - `-h` (or) `--help` show help message and exit.
     - `-u USERNAME` (or) `--email EMAIL` signing method.
     - `-p PASSWORD` signin password.
-    - `-t TARGET` account to scrape.
     - `-v` verbosity mode. *(Optional)*
-    - Output *(Optional)*
-      - `-o` output file.
-      - `--output FILENAME` custom named output file.
+      - `follow`
+        - `--target TARGET` 
+        - `--followers`
+        - `--followings`
+        - Output *(Optional)*
+          - `-o` output file.
+          - `--output FILENAME` custom named output file.
+      - `post`
+        - *Soon*
+    
   
 - [Installation](#installation)
   - `git clone https://github.com/farukerdem34/inscrape.git`
