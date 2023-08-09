@@ -27,7 +27,7 @@ def getUserInput():
         output_group.add_argument("--output",dest="output",type=str)
 
         post_parser = subparsers.add_parser("post")
-        post_parser.add_argument("-p",dest="post",help="Single post download.",type=str,required=False)
+        post_parser.add_argument("-p",dest="post",help="The ID of the post to be downloaded. e.g https://www.instagram.com/p/<ID>/",type=str,required=False)
 
         args = parser.parse_args()
         return args

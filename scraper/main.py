@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from instagramUserInfo import User
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -7,6 +8,7 @@ from userinput import getUserInput
 from colors import bcolors as colors
 import os
 import datetime
+import wget
 
 
 class Instagram:
@@ -127,11 +129,29 @@ class Instagram:
             }
             followings.append(data)
         return followings
-    
-    def getPost(self,post_id):
-        self.browser.get(f"{self.base_url}{post_id}/")
-        self.waitForContent()
 
+    def getPost(self, post_id):
+        self.browser.get(f"{self.base_url}p/{post_id}/")
+        self.waitForContent()
+        try:
+            post_image = self.browser.find_element(
+                By.CSS_SELECTOR, "div.x972fbf > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > img:nth-child(1)")
+            src = post_image.get_attribute("src")
+        except NoSuchElementException:
+            # try:
+            #     post_video = self.browser.find_element(By.CSS_SELECTOR,"video.x1lliihq")
+            #     src = post_video.get_attribute("src")
+            # except NoSuchElementException:
+            #     print(f"{colors.FAIL}Post content not found!{colors.ENDC}")
+            print(f"{colors.FAIL}Post content not found!{colors.ENDC}")
+            self.browser.close()
+            quit()
+        post_desc = self.browser.find_element(
+            By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/section/main/div/div[1]/div/div[2]/div/div[2]/div/div/div[1]/div/div[2]/div/span/div/span").text
+        post_desc = str(post_desc)
+        path = os.getcwd()+"/"+post_desc
+        os.mkdir(path)
+        wget.download(src, out=path)
 
 
 args = getUserInput()
@@ -197,7 +217,8 @@ def follow_actions(args):
         followings = instagram.getFollowing(args.target, args.verbose)
         print_title("Followers")
         if followings == None:
-            print(f"{colors.FAIL}{args.target} does not follow any acoount.{colors.ENDC}")
+            print(
+                f"{colors.FAIL}{args.target} does not follow any acoount.{colors.ENDC}")
         else:
             for i in followings:
                 following = i["username"]
@@ -209,8 +230,9 @@ def follow_actions(args):
     else:
         print(f"{colors.FAIL}The output could not be saved{colors.ENDC}")
 
+
 def post_actions(args):
-    print("Post Actions")
+    instagram.getPost(args.post)
 
 
 if args.subCommand == "follow":
