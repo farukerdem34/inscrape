@@ -6,7 +6,6 @@ from time import sleep
 from userinput import getUserInput
 from colors import bcolors as colors
 import os
-import threading
 import datetime
 
 
@@ -17,6 +16,9 @@ class Instagram:
         self.login_page = "accounts/login/"
         self.user = User(signin_method, password)
         self.wait = wait
+
+    def waitForContent(self):
+        sleep(self.wait)
 
     def signIn(self):
         self.browser.get(self.base_url+self.login_page)
@@ -29,7 +31,7 @@ class Instagram:
         emailInput.send_keys(self.user.signin_method)
         passwordInput.send_keys(self.user.password)
         passwordInput.send_keys(Keys.ENTER)
-        sleep(self.wait)
+        self.waitForContent()
 
     def verbose_list(self, data):
         self.clean_terminal()
@@ -45,15 +47,15 @@ class Instagram:
     def scrollDown(self, element):
         self.browser.execute_script(
             "arguments[0].scroll(0, arguments[0].scrollHeight);", element)
-        sleep(self.wait)
+        self.waitForContent()
 
     def getFollowers(self, username: str, verbose: bool = False):
         self.browser.get(self.base_url+username+"/")
-        sleep(self.wait)
+        self.waitForContent()
         followersButton = self.browser.find_element(
             By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/header/section/ul/li[2]/a")
         followersButton.click()
-        sleep(self.wait)
+        self.waitForContent()
         followersList = self.browser.find_elements(
             By.CSS_SELECTOR, "._aano > div:nth-child(1) > div:nth-child(1) > *")
         follower_count = len(followersList)
@@ -62,10 +64,11 @@ class Instagram:
         fbody = self.browser.find_element(
             By.XPATH, "//html/body/div[2]/div/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[2]")
         while True:
+            print(f"{colors.WARNING}Receiving followers list.{colors.ENDC}")
             self.scrollDown(fbody)
             followersList = self.browser.find_elements(
                 By.CSS_SELECTOR, "._aano > div:nth-child(1) > div:nth-child(1) > *")
-            sleep(self.wait)
+            self.waitForContent()
             if not (follower_count == len(followersList)):
                 follower_count = len(followersList)
                 if verbose:
@@ -87,11 +90,11 @@ class Instagram:
 
     def getFollowing(self, username: str, verbose: bool = False):
         self.browser.get(self.base_url+username+"/")
-        sleep(self.wait)
+        self.waitForContent()
         following = self.browser.find_element(
             By.XPATH, "/html/body/div[2]/div/div/div[2]/div/div/div/div[1]/div[1]/div[2]/div[2]/section/main/div/header/section/ul/li[3]/a")
         following.click()
-        sleep(self.wait)
+        self.waitForContent()
         followingsList = self.browser.find_elements(
             By.CSS_SELECTOR, "._aano > div:nth-child(1) > div:nth-child(1) > *")
         followingsCount = len(followingsList)
@@ -101,10 +104,11 @@ class Instagram:
             By.XPATH, "/html/body/div[2]/div/div/div[3]/div/div/div[1]/div/div[2]/div/div/div/div/div[2]/div/div/div[3]")
 
         while True:
+            print(f"{colors.WARNING}Receiving followings list.{colors.ENDC}")
             self.scrollDown(fbody)
             followingsList = self.browser.find_elements(
                 By.CSS_SELECTOR, "._aano > div:nth-child(1) > div:nth-child(1) > *")
-            sleep(self.wait)
+            self.waitForContent()
             if not (followingsCount == len(followingsList)):
                 followingsCount = len(followingsList)
                 if verbose:
@@ -123,6 +127,11 @@ class Instagram:
             }
             followings.append(data)
         return followings
+    
+    def getPost(self,post_id):
+        self.browser.get(f"{self.base_url}{post_id}/")
+        self.waitForContent()
+
 
 
 args = getUserInput()
@@ -166,45 +175,45 @@ signin_method = sign_in_method(args)
 
 instagram = Instagram(signin_method=signin_method, password=args.password)
 
-scaping_info(args.username, args.target, datetime.datetime.now())
 instagram.signIn()
 
-if args.followers:
-    followers = instagram.getFollowers(args.target, args.verbose)
-    instagram.clean_terminal()
-    print_title("Followers")
-    if followers == None:
-        print(f"{colors.FAIL}{args.target} has no followers..{colors.ENDC}")
+
+def follow_actions(args):
+    scaping_info(args.username, args.target, datetime.datetime.now())
+    if args.followers:
+        followers = instagram.getFollowers(args.target, args.verbose)
+        instagram.clean_terminal()
+        print_title("Followers")
+        if followers == None:
+            print(f"{colors.FAIL}{args.target} has no followers..{colors.ENDC}")
+        else:
+            for i in followers:
+                follower = i["username"]
+                follower_url = i["profile_link"]
+                print(
+                    f"Username: {colors.OKCYAN}{follower}{colors.ENDC}, URL: {colors.OKCYAN}{follower_url}{colors.ENDC}")
+                print_title("Followings")
+    if args.followings:
+        followings = instagram.getFollowing(args.target, args.verbose)
+        print_title("Followers")
+        if followings == None:
+            print(f"{colors.FAIL}{args.target} does not follow any acoount.{colors.ENDC}")
+        else:
+            for i in followings:
+                following = i["username"]
+                following_url = i["profile_link"]
+                print(
+                    f"Username: {colors.OKCYAN}{following}{colors.ENDC}, URL: {colors.OKCYAN}{following_url}{colors.ENDC}")
+    if args.output and not (followers == None) and not (following == None):
+        save_output(args, followers, followings)
     else:
-        for i in followers:
-            follower = i["username"]
-            follower_url = i["profile_link"]
-            print(
-                f"Username: {colors.OKCYAN}{follower}{colors.ENDC}, URL: {colors.OKCYAN}{follower_url}{colors.ENDC}")
-            print_title("Followings")
-if args.followings:
-    followings = instagram.getFollowing(args.target, args.verbose)
-    print_title("Followers")
-    if followings == None:
-        print(f"{colors.FAIL}{args.target} does not follow any acoount.{colors.ENDC}")
-    else:
-        for i in followings:
-            following = i["username"]
-            following_url = i["profile_link"]
-            print(
-                f"Username: {colors.OKCYAN}{following}{colors.ENDC}, URL: {colors.OKCYAN}{following_url}{colors.ENDC}")
-            
+        print(f"{colors.FAIL}The output could not be saved{colors.ENDC}")
+
+def post_actions(args):
+    print("Post Actions")
 
 
-# End of browser proccess
-instagram.browser.quit()
-if args.output and not (followers == None) and not (following == None):
-    save_output(args, followers, followings)
-else:
-    print(f"{colors.FAIL}The output could not be saved{colors.ENDC}")
-
-
-
-
-
-
+if args.subCommand == "follow":
+    follow_actions(args)
+elif args.subCommand == "post":
+    post_actions(args)
