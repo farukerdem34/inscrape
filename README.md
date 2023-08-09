@@ -23,7 +23,7 @@
         - *Soon*
     
   
-- [Installation](#installation)
+- # Installation
   - `git clone https://github.com/farukerdem34/inscrape.git`
   - `cd inscrape`
   - `pip install -r requirements.txt`
