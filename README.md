@@ -16,7 +16,7 @@
       - `--headless`
       - Targeting
         - `-t TARGET` (or) `--target TARGET`
-        - `-T TARGETS`(or) `--targets`
+        - `-T TARGETS`(or) `--targets TARGETS`
       - `--followers`
       - `--followings`
       - Output *(Optional)*
