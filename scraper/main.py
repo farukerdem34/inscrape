@@ -128,9 +128,6 @@ class Instagram:
             followings.append(data)
         return followings
     
-    def getPost(self,post_id):
-        self.browser.get(f"{self.base_url}{post_id}/")
-        self.waitForContent()
 
 
 
@@ -146,8 +143,8 @@ def print_title(title: str, dash_count: int = 50):
           f"{title}"+("="*dash_count)+colors.ENDC)
 
 
-def save_output(args, followers, followings):
-    if type(args.output) == bool:
+def save_output(output, followers, followings,followers_bool:bool,followings_bool:bool):
+    if type(output) == bool:
         if args.followers:
             with open("followers.txt", "w") as file:
                 file.write(followers)
@@ -155,13 +152,35 @@ def save_output(args, followers, followings):
             with open("followings.txt", "w") as file:
                 file.write(followings)
     else:
-        if args.followers:
+        if followers_bool:
             with open(f"{args.output}.followers.txt", "w") as file:
                 file.write(followers)
-        if args.followings:
+        if followings_bool:
             with open(f"{args.output}.followings.txt", "w") as file:
                 file.write(followings)
 
+def make_targets_list(target_file):
+    targets = []
+    for i in target_file:
+        i = str(i)
+        if i == "\n":
+            pass
+        else:
+            targets.append(i.strip().replace("\n",""))
+    return targets
+
+def show_targets(args,targets):
+    for i in args.targets.readlines():
+        i = str(i)
+        if i == "\n":
+            pass
+        else:
+            targets.append(i.strip().replace("\n",""))
+
+    print(f"{colors.HEADER}Targets:{colors.ENDC}")
+
+    for target in targets:
+        print(f"{colors.WARNING}[+] {target}{colors.ENDC}")
 
 def sign_in_method(args):
     if args.username:
@@ -175,45 +194,54 @@ signin_method = sign_in_method(args)
 
 instagram = Instagram(signin_method=signin_method, password=args.password)
 
-instagram.signIn()
 
 
 def follow_actions(args):
-    scaping_info(args.username, args.target, datetime.datetime.now())
-    if args.followers:
-        followers = instagram.getFollowers(args.target, args.verbose)
+    instagram.signIn()  
+    if args.target:
+        attack_target(args.username,args.target,args.followers,args.following,args.verbose)
+    elif args.targets:
+        targets = make_targets_list(args.targets.readlines())
+        show_targets(args,targets)
+        attack_targets(targets)
+
+def attack_targets(targets):
+    for target in targets:
+        attack_target(args.username,target,args.followers,args.following,args.output,args.verbose)
+
+def attack_target(username:str,target:str,followers:bool,followings:bool,output,verbose:bool=False):
+    scaping_info(username, target, datetime.datetime.now())
+    if followers:
+        followers_list = instagram.getFollowers(target, args.verbose)
         instagram.clean_terminal()
         print_title("Followers")
         if followers == None:
-            print(f"{colors.FAIL}{args.target} has no followers..{colors.ENDC}")
+            print(f"{colors.FAIL}{target} has no followers..{colors.ENDC}")
         else:
             for i in followers:
                 follower = i["username"]
                 follower_url = i["profile_link"]
                 print(
-                    f"Username: {colors.OKCYAN}{follower}{colors.ENDC}, URL: {colors.OKCYAN}{follower_url}{colors.ENDC}")
+                        f"Username: {colors.OKCYAN}{follower}{colors.ENDC}, URL: {colors.OKCYAN}{follower_url}{colors.ENDC}")
                 print_title("Followings")
-    if args.followings:
-        followings = instagram.getFollowing(args.target, args.verbose)
+    if followings:
+        followings_list = instagram.getFollowing(target, verbose)
         print_title("Followers")
         if followings == None:
-            print(f"{colors.FAIL}{args.target} does not follow any acoount.{colors.ENDC}")
+            print(f"{colors.FAIL}{target} does not follow any acoount.{colors.ENDC}")
         else:
             for i in followings:
                 following = i["username"]
                 following_url = i["profile_link"]
                 print(
-                    f"Username: {colors.OKCYAN}{following}{colors.ENDC}, URL: {colors.OKCYAN}{following_url}{colors.ENDC}")
-    if args.output and not (followers == None) and not (following == None):
-        save_output(args, followers, followings)
+                        f"Username: {colors.OKCYAN}{following}{colors.ENDC}, URL: {colors.OKCYAN}{following_url}{colors.ENDC}")
+    if output and not (followers == None) and not (following == None):
+        save_output(output,followers_list,followings_list,followers, followings)
     else:
         print(f"{colors.FAIL}The output could not be saved{colors.ENDC}")
 
-def post_actions(args):
-    print("Post Actions")
 
-
-if args.subCommand == "follow":
+if args.subCommand == "profile":
     follow_actions(args)
-elif args.subCommand == "post":
-    post_actions(args)
+else:
+    pass    
