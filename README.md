@@ -8,19 +8,21 @@
 
 - # Usage
   - ## Flags
-    - `-h` (or) `--help` show help message and exit.
-    - `-u USERNAME` (or) `--email EMAIL` signing method.
-    - `-p PASSWORD` signin password.
-    - `-v` verbosity mode. *(Optional)*
-      - `follow`
-        - `--target TARGET` 
-        - `--followers`
-        - `--followings`
-        - Output *(Optional)*
-          - `-o` output file.
-          - `--output FILENAME` custom named output file.
-      - `post`
-        - *Soon*
+    - `profile`
+      - `-h` (or) `--help` show help message and exit.
+      - `-u USERNAME` (or) `--email EMAIL` signing method.
+      - `-p PASSWORD` signin password.
+      - `-v` verbosity mode. *(Optional)*
+      - `--headless`
+      - Targeting
+        - `-t TARGET` (or) `--target TARGET`
+        - `-T TARGETS`(or) `--targets`
+      - `--followers`
+      - `--followings`
+      - Output *(Optional)*
+        - `-o` output file.
+        - `--output FILENAME` custom named output file.
+
     
   
 - # Installation
